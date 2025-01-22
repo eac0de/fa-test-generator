@@ -52,14 +52,11 @@ class {test_class_name}:
                 f.write(test_class_code)
             conftest_code = f"""import os
 
-from dotenv import load_dotenv
 import pytest
 from asgi_lifespan import LifespanManager
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
-from main import app # change to your FastAPI app
-
-load_dotenv(dotenv_path="{self.tests_dir}test.env")
+from main import app # TODO Import your FastAPI app instance
 
 @pytest.fixture(scope="session", autouse=True)
 def check_mode():

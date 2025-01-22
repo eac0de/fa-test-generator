@@ -1,22 +1,22 @@
 # FATestGenerator
 
-**FATestGenerator** — это утилита для автоматической генерации тестов для API, созданных с использованием FastAPI. Библиотека позволяет быстро создавать тесты для ваших маршрутов и удобно организует их структуру.
+**FATestGenerator** is a utility for automatically generating tests for APIs built with FastAPI. The library allows you to quickly create tests for your routes and neatly organize their structure.
 
 ## Особенности
 
-- Генерация тестов для всех маршрутов FastAPI.
-- Поддержка асинхронного клиента `httpx`.
-- Автоматическая организация тестов по роутерам.
-- Генерация вспомогательных файлов:
-  - `conftest.py` для фикстур и настройки окружения.
-  - `pytest.ini` для конфигурации pytest.
-  - `.env` файл для тестового окружения.
+- Test generation for all FastAPI routes.
+- Support for the asynchronous client httpx.
+- Automatic test organization by routers.
+- Generation of auxiliary files:
+  - `conftest.py` for fixtures and environment setup.
+  - `pytest.ini` for pytest configuration.
+  - `test.env` file for the test environment.
 
 ---
 
-## Установка
+## Installation
 
-Добавьте `FATestGenerator` в ваш проект:
+Add `FATestGenerator` to your project:
 
 ```bash
 pip install fa-test-generator
@@ -28,36 +28,39 @@ poetry add fa-test-generator
 
 ---
 
-## Использование
+## Usage
 
-### Инициализация
+### Initialization
 
 ```python
 from fastapi import FastAPI
 from fa_test_generator import FATestGenerator
 
+# Initialize your FastAPI app
 app = FastAPI()
-# Инициализация вашего приложения FastAPI
 
+# Initialize the generator and start generating tests
 generator = FATestGenerator(app, tests_dir="./tests/")
 generator.generate()
 ```
 
-### Параметры конструктора
+### Constructor Parameters
 
-- `app` (FastAPI): Ваше приложение FastAPI.
-- `tests_dir` (str, optional): Папка для хранения тестов. По умолчанию — `./tests/`.
+- `app` (FastAPI): Your FastAPI app.
+- `tests_dir` (str, optional): The folder to store the tests. Default is `./tests/`.
 
 ---
 
-## Что генерируется?
+## What is Generated?
 
-1. **`Файлы тестов`**:
-   Для каждого файла с маршрутами создается отдельный файл в `tests/api/`.
+1. **`Test Files`**:
+   For each router file, a separate test file is created in `tests/api/`.
 
-   Например, для роутера `user_router` лежащий в файле user_router.py:
+   For example, for the router located in `user_router.py`:
 
    ```python
+    # app/api/routers/user_router.py
+
     from fa_test_generator import FATestGenerator
     from fastapi import APIRouter, FastAPI, status
     from pydantic import BaseModel
@@ -96,6 +99,9 @@ generator.generate()
         user = UserService.create_user(user_scheme)
         return user
 
+    # app/main.py
+
+    from fastapi import FastAPI
 
     app = FastAPI()
 
@@ -105,9 +111,11 @@ generator.generate()
         FATestGenerator(app, tests_dir="./tests/").generate()
    ```
 
-   создается файл `tests/api/test_user_router.py` со структурой:
+   A file `tests/api/test_user_router.py` is created with the following structure:
 
    ```python
+   # tests/api/test_user_router.py
+
    from httpx import AsyncClient
    import jsony
 
@@ -124,10 +132,11 @@ generator.generate()
            assert resp.status_code == 2001
    ```
 
-2. **`conftest.py`**:
-   Этот файл настраивает фикстуры и проверяет тестовое окружение.
+2. **`conftest.py`**: This file sets up fixtures and checks the test environment.
 
    ```python
+   # app/tests/conftest.py
+
    import os
    from dotenv import load_dotenv
    import pytest
@@ -150,32 +159,34 @@ generator.generate()
                yield ac
    ```
 
-3. **`pytest.ini`**:
-   Файл конфигурации для pytest:
+3. **`pytest.ini`**: Configuration file for pytest:
 
    ```ini
+    # app/test/pytest.ini
+
    [pytest]
    pythonpath = . .
    env_files = ./tests/test.env
    asyncio_mode = auto
    ```
 
-4. **`test.env`**:
-   Файл окружения для тестов:
+4. **`test.env`**: Environment file for tests:
 
    ```env
+   # app/test/test.env
+
    MODE=TEST
    ```
 
 ---
 
-## Как работает генерация тестов?
+## How Does Test Generation Work?
 
-- Классы тестов организуются по роутерам. Названия классов формируются автоматически на основе имени модуля.
-- Для каждого маршрута создается метод теста с заготовкой для проверки статуса ответа.
-- Если маршрут требует тело запроса, оно будет автоматически сгенерировано на основе модели FastAPI.
+- Test classes are organized by routers. The class names are generated automatically based on the module name.
+- A test method is created for each route with a template to check the response status.
+- If the route requires a request body, it will be automatically generated based on the FastAPI model.
 
-Пример сгенерированного метода теста:
+Example of a generated test method:
 
 ```python
 async def test_create_user(self, client: AsyncClient):
@@ -189,6 +200,6 @@ async def test_create_user(self, client: AsyncClient):
 
 ---
 
-## Лицензия
+## License
 
-Этот проект распространяется под лицензией MIT. Для получения подробной информации смотрите файл LICENSE.
+This project is licensed under the MIT License. For more information, see the LICENSE file.
